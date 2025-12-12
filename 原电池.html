@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>原电池原理演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #000;
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .demo-container {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            height: 85vh;
+            background-color: #000;
+            overflow: hidden;
+        }
+        
+        .battery-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+        }
+        
+        /* 烧杯样式 */
+        .beaker {
+            position: absolute;
+            bottom: 10vh;
+            width: 25vmin;
+            height: 35vmin;
+        }
+        
+        .beaker.left {
+            left: 15vw;
+        }
+        
+        .beaker.right {
+            right: 15vw;
+        }
+        
+        .beaker-body {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 85%;
+            background-color: rgba(135, 206, 235, 0.05);
+            border: 2px solid #87ceeb;
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+        }
+        
+        .solution {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 75%;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .solution.zn {
+            background-color: rgba(255, 255, 180, 0.6);
+        }
+        
+        .solution.cu {
+            background-color: rgba(180, 200, 255, 0.6);
+        }
+        
+        .beaker-label {
+            position: absolute;
+            bottom: -4vh;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+            font-size: 2vmin;
+            color: white;
+        }
+        
+        /* 电极样式 */
+        .electrode {
+            position: absolute;
+            width: 1.5vmin;
+            border-radius: 5px 5px 0 0;
+            z-index: 10;
+        }
+        
+        .electrode.zn {
+            height: 25vmin;
+            background: linear-gradient(to right, #a9a9a9, #d3d3d3, #a9a9a9);
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 10vmin;
+        }
+        
+        .electrode.cu {
+            height: 25vmin;
+            background: linear-gradient(to right, #b87333, #daa520, #b87333);
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 10vmin;
+        }
+        
+        /* 盐桥样式 */
+        .salt-bridge {
+            position: absolute;
+            width: 8vmin;
+            height: 3vmin;
+            background-color: #9acd32;
+            border-radius: 1.5vmin;
+            bottom: 20vmin;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            border: 1px solid #7cb342;
+        }
+        
+        .salt-bridge::before, .salt-bridge::after {
+            content: '';
+            position: absolute;
+            width: 6vmin;
+            height: 1vmin;
+            background-color: #9acd32;
+            border: 1px solid #7cb342;
+            border-left: none;
+            border-right: none;
+        }
+        
+        .salt-bridge::before {
+            top: -1.2vmin;
+            left: -5vmin;
+        }
+        
+        .salt-bridge::after {
+            top: -1.2vmin;
+            right: -5vmin;
+        }
+        
+        /* 导线和电流表 */
+        .wire {
+            position: absolute;
+            background-color: #aaa;
+            height: 2px;
+            z-index: 5;
+        }
+        
+        .wire.horizontal {
+            width: 25vmin;
+            top: 10vmin;
+        }
+        
+        .wire.left {
+            left: 40vmin;
+        }
+        
+        .wire.right {
+            right: 40vmin;
+        }
+        
+        .wire.vertical {
+            width: 2px;
+            height: 5vmin;
+            top: 5vmin;
+        }
+        
+        .wire.vertical.left {
+            left: 65vmin;
+        }
+        
+        .wire.vertical.right {
+            right: 65vmin;
+        }
+        
+        .ammeter {
+            position: absolute;
+            width: 8vmin;
+            height: 5vmin;
+            background-color: #222;
+            border-radius: 5px;
+            top: 5vmin;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1vmin;
+            border: 1px solid #444;
+        }
+        
+        .ammeter::after {
+            content: 'A';
+            position: absolute;
+            right: 0.5vmin;
+            top: 0.5vmin;
+            font-size: 0.8vmin;
+            color: #4CAF50;
+        }
+        
+        .needle {
+            position: absolute;
+            width: 3vmin;
+            height: 1px;
+            background-color: #4CAF50;
+            left: 1vmin;
+            top: 50%;
+            transform-origin: right center;
+            transform: rotate(30deg);
+            transition: transform 0.5s;
+        }
+        
+        /* 粒子动画 */
+        .electron {
+            position: absolute;
+            width: 0.8vmin;
+            height: 0.8vmin;
+            background-color: #ff4757;
+            border-radius: 50%;
+            z-index: 30;
+            box-shadow: 0 0 5px #ff4757;
+        }
+        
+        .ion {
+            position: absolute;
+            width: 1.2vmin;
+            height: 1.2vmin;
+            border-radius: 50%;
+            z-index: 15;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6vmin;
+            font-weight: bold;
+        }
+        
+        .ion.zn-plus {
+            background-color: rgba(255, 200, 0, 0.8);
+            color: #333;
+        }
+        
+        .ion.so4-minus {
+            background-color: rgba(0, 150, 255, 0.8);
+            color: white;
+        }
+        
+        .ion.cu-plus {
+            background-color: rgba(184, 115, 51, 0.8);
+            color: white;
+        }
+        
+        /* 速度控制 */
+        .speed-control {
+            position: absolute;
+            bottom: 2vh;
+            right: 2vw;
+            background-color: rgba(30, 30, 30, 0.8);
+            padding: 1vmin;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 1vmin;
+            z-index: 100;
+            border: 1px solid #444;
+        }
+        
+        .speed-label {
+            font-size: 1.5vmin;
+            color: #ccc;
+        }
+        
+        .speed-slider {
+            width: 15vmin;
+            height: 0.5vmin;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #555;
+            border-radius: 2px;
+            outline: none;
+        }
+        
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 1.5vmin;
+            height: 1.5vmin;
+            border-radius: 50%;
+            background: #2a5298;
+            cursor: pointer;
+        }
+        
+        .speed-value {
+            font-size: 1.5vmin;
+            color: white;
+            min-width: 4vmin;
+            text-align: center;
+        }
+        
+        .animation-active .needle {
+            transform: rotate(-30deg);
+        }
+        
+        /* 状态指示器 */
+        .status {
+            position: absolute;
+            top: 2vh;
+            left: 2vw;
+            background-color: rgba(30, 30, 30, 0.8);
+            padding: 0.5vmin 1vmin;
+            border-radius: 5px;
+            font-size: 1.5vmin;
+            color: #4CAF50;
+            border: 1px solid #444;
+            z-index: 100;
+        }
+        
+        /* 动画关键帧 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-5px) translateX(3px); }
+            50% { transform: translateY(-10px) translateX(-3px); }
+            75% { transform: translateY(-5px) translateX(3px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="status" id="status">演示运行中</div>
+    
+    <div class="demo-container">
+        <div class="battery-container" id="batteryContainer">
+            <!-- 左烧杯：锌电极和硫酸锌溶液 -->
+            <div class="beaker left">
+                <div class="beaker-body">
+                    <div class="solution zn" id="znSolution"></div>
+                </div>
+                <div class="electrode zn" id="znElectrode"></div>
+                <div class="beaker-label">Zn/ZnSO₄</div>
+            </div>
+            
+            <!-- 右烧杯：铜电极和硫酸铜溶液 -->
+            <div class="beaker right">
+                <div class="beaker-body">
+                    <div class="solution cu" id="cuSolution"></div>
+                </div>
+                <div class="electrode cu" id="cuElectrode"></div>
+                <div class="beaker-label">Cu/CuSO₄</div>
+            </div>
+            
+            <!-- 盐桥 -->
+            <div class="salt-bridge" id="saltBridge"></div>
+            
+            <!-- 导线和电流表 -->
+            <div class="wire horizontal left" id="wireLeft"></div>
+            <div class="wire horizontal right" id="wireRight"></div>
+            <div class="wire vertical left"></div>
+            <div class="wire vertical right"></div>
+            
+            <div class="ammeter" id="ammeter">
+                <div class="needle" id="needle"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="speed-control">
+        <div class="speed-label">速度:</div>
+        <input type="range" min="1" max="10" value="5" class="speed-slider" id="speedSlider">
+        <div class="speed-value" id="speedValue">5</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const batteryContainer = document.getElementById('batteryContainer');
+            const speedSlider = document.getElementById('speedSlider');
+            const speedValue = document.getElementById('speedValue');
+            const needle = document.getElementById('needle');
+            const znSolution = document.getElementById('znSolution');
+            const cuSolution = document.getElementById('cuSolution');
+            const status = document.getElementById('status');
+            
+            let animationActive = true;
+            let animationSpeed = 5;
+            let electronInterval, ionInterval;
+            let electronCount = 0;
+            let ions = [];
+            
+            // 自动开始演示
+            startAnimation();
+            
+            // 更新速度显示
+            function updateSpeedDisplay() {
+                speedValue.textContent = animationSpeed;
+            }
+            
+            // 开始动画
+            function startAnimation() {
+                animationActive = true;
+                batteryContainer.classList.add('animation-active');
+                status.textContent = "演示运行中";
+                status.style.color = "#4CAF50";
+                
+                // 移动电流表指针
+                needle.style.transition = `transform ${1.5/animationSpeed}s ease-in-out`;
+                
+                // 创建电子流动
+                electronInterval = setInterval(createElectron, 1000 / animationSpeed);
+                
+                // 创建离子移动
+                ionInterval = setInterval(createIon, 1500 / animationSpeed);
+                
+                // 逐渐改变溶液颜色表示浓度变化
+                graduallyChangeSolutionColor();
+                
+                // 创建静态离子
+                createStaticIons();
+            }
+            
+            // 暂停动画
+            function pauseAnimation() {
+                animationActive = false;
+                batteryContainer.classList.remove('animation-active');
+                status.textContent = "演示已暂停";
+                status.style.color = "#ff6b6b";
+                
+                clearInterval(electronInterval);
+                clearInterval(ionInterval);
+                
+                // 停止所有离子动画
+                ions.forEach(ion => {
+                    ion.style.animationPlayState = 'paused';
+                });
+            }
+            
+            // 重新开始动画
+            function restartAnimation() {
+                pauseAnimation();
+                
+                // 重置电流表指针
+                needle.style.transform = 'rotate(30deg)';
+                
+                // 移除所有电子和离子
+                document.querySelectorAll('.electron, .ion').forEach(el => el.remove());
+                
+                // 重置溶液颜色
+                znSolution.style.backgroundColor = 'rgba(255, 255, 180, 0.6)';
+                cuSolution.style.backgroundColor = 'rgba(180, 200, 255, 0.6)';
+                
+                // 重置计数器
+                electronCount = 0;
+                ions = [];
+                
+                // 重新开始
+                setTimeout(startAnimation, 100);
+            }
+            
+            // 创建电子
+            function createElectron() {
+                if (!animationActive) return;
+                
+                electronCount++;
+                
+                // 创建电子元素
+                const electron = document.createElement('div');
+                electron.className = 'electron';
+                electron.id = `electron-${electronCount}`;
+                
+                // 设置电子起始位置（锌电极顶部）
+                const znElectrode = document.getElementById('znElectrode');
+                const znRect = znElectrode.getBoundingClientRect();
+                const containerRect = batteryContainer.getBoundingClientRect();
+                
+                const startX = znRect.left + znRect.width/2 - containerRect.left - 4;
+                const startY = znRect.top - containerRect.top;
+                
+                electron.style.left = `${startX}px`;
+                electron.style.top = `${startY}px`;
+                
+                batteryContainer.appendChild(electron);
+                
+                // 电子流动动画路径
+                const wireLeft = document.getElementById('wireLeft');
+                const wireLeftRect = wireLeft.getBoundingClientRect();
+                const ammeter = document.getElementById('ammeter');
+                const ammeterRect = ammeter.getBoundingClientRect();
+                const wireRight = document.getElementById('wireRight');
+                const wireRightRect = wireRight.getBoundingClientRect();
+                const cuElectrode = document.getElementById('cuElectrode');
+                const cuRect = cuElectrode.getBoundingClientRect();
+                
+                // 动画关键帧
+                const keyframes = [
+                    { left: `${startX}px`, top: `${startY}px` },
+                    { left: `${wireLeftRect.left - containerRect.left + wireLeftRect.width}px`, top: `${wireLeftRect.top - containerRect.top + wireLeftRect.height/2}px` },
+                    { left: `${ammeterRect.left - containerRect.left + ammeterRect.width/2}px`, top: `${ammeterRect.top - containerRect.top + ammeterRect.height/2}px` },
+                    { left: `${wireRightRect.left - containerRect.left}px`, top: `${wireRightRect.top - containerRect.top + wireRightRect.height/2}px` },
+                    { left: `${cuRect.left - containerRect.left + cuRect.width/2}px`, top: `${cuRect.top - containerRect.top}px` }
+                ];
+                
+                // 计算动画时间
+                const animationDuration = 3000 / animationSpeed;
+                
+                // 应用动画
+                electron.animate(
+                    keyframes.map(kf => ({ left: kf.left, top: kf.top })),
+                    {
+                        duration: animationDuration,
+                        easing: 'linear',
+                        fill: 'forwards'
+                    }
+                );
+                
+                // 动画结束后移除电子
+                setTimeout(() => {
+                    if (electron.parentNode) {
+                        electron.remove();
+                    }
+                }, animationDuration);
+            }
+            
+            // 创建离子
+            function createIon() {
+                if (!animationActive) return;
+                
+                // 随机创建不同类型的离子
+                const ionType = Math.floor(Math.random() * 3);
+                let ionClass, ionText, startX, startY, endX, endY;
+                
+                const znSolutionRect = znSolution.getBoundingClientRect();
+                const cuSolutionRect = cuSolution.getBoundingClientRect();
+                const containerRect = batteryContainer.getBoundingClientRect();
+                const saltBridge = document.getElementById('saltBridge');
+                const saltBridgeRect = saltBridge.getBoundingClientRect();
+                
+                switch(ionType) {
+                    case 0: // Zn²⁺ 离子从锌电极向盐桥移动
+                        ionClass = 'ion zn-plus';
+                        ionText = 'Zn²⁺';
+                        startX = znSolutionRect.left - containerRect.left + znSolutionRect.width/2;
+                        startY = znSolutionRect.top - containerRect.top + znSolutionRect.height - 20;
+                        endX = saltBridgeRect.left - containerRect.left;
+                        endY = saltBridgeRect.top - containerRect.top + saltBridgeRect.height/2;
+                        break;
+                    case 1: // Cu²⁺ 离子从盐桥向铜电极移动
+                        ionClass = 'ion cu-plus';
+                        ionText = 'Cu²⁺';
+                        startX = saltBridgeRect.right - containerRect.left;
+                        startY = saltBridgeRect.top - containerRect.top + saltBridgeRect.height/2;
+                        endX = cuSolutionRect.left - containerRect.left + cuSolutionRect.width/2;
+                        endY = cuSolutionRect.top - containerRect.top + cuSolutionRect.height - 20;
+                        break;
+                    case 2: // SO₄²⁻ 离子从铜半电池向锌半电池移动
+                        ionClass = 'ion so4-minus';
+                        ionText = 'SO₄²⁻';
+                        startX = cuSolutionRect.left - containerRect.left + cuSolutionRect.width/2;
+                        startY = cuSolutionRect.top - containerRect.top + cuSolutionRect.height - 20;
+                        endX = znSolutionRect.left - containerRect.left + znSolutionRect.width/2;
+                        endY = znSolutionRect.top - containerRect.top + znSolutionRect.height - 20;
+                        break;
+                }
+                
+                const ion = document.createElement('div');
+                ion.className = ionClass;
+                ion.textContent = ionText;
+                ion.style.left = `${startX}px`;
+                ion.style.top = `${startY}px`;
+                
+                batteryContainer.appendChild(ion);
+                ions.push(ion);
+                
+                // 离子移动动画
+                const animationDuration = 4000 / animationSpeed;
+                
+                ion.animate(
+                    [
+                        { left: `${startX}px`, top: `${startY}px` },
+                        { left: `${endX}px`, top: `${endY}px` }
+                    ],
+                    {
+                        duration: animationDuration,
+                        easing: 'linear',
+                        fill: 'forwards'
+                    }
+                );
+                
+                // 动画结束后移除离子
+                setTimeout(() => {
+                    if (ion.parentNode) {
+                        const index = ions.indexOf(ion);
+                        if (index > -1) ions.splice(index, 1);
+                        ion.remove();
+                    }
+                }, animationDuration);
+            }
+            
+            // 逐渐改变溶液颜色
+            function graduallyChangeSolutionColor() {
+                let znAlpha = 0.6;
+                let cuAlpha = 0.6;
+                let znColorChange = 0.01 / animationSpeed;
+                let cuColorChange = 0.008 / animationSpeed;
+                
+                const colorInterval = setInterval(() => {
+                    if (!animationActive) {
+                        clearInterval(colorInterval);
+                        return;
+                    }
+                    
+                    // 锌溶液逐渐变黄（Zn²⁺浓度增加）
+                    znAlpha = Math.min(0.9, znAlpha + znColorChange);
+                    znSolution.style.backgroundColor = `rgba(255, 255, 180, ${znAlpha})`;
+                    
+                    // 铜溶液逐渐变浅（Cu²⁺浓度减少）
+                    cuAlpha = Math.max(0.3, cuAlpha - cuColorChange);
+                    cuSolution.style.backgroundColor = `rgba(180, 200, 255, ${cuAlpha})`;
+                }, 200);
+            }
+            
+            // 创建静态离子
+            function createStaticIons() {
+                for (let i = 0; i < 10; i++) {
+                    setTimeout(() => {
+                        if (!animationActive) return;
+                        
+                        createStaticIon();
+                    }, i * 200);
+                }
+            }
+            
+            // 创建单个静态离子
+            function createStaticIon() {
+                const ionType = Math.floor(Math.random() * 3);
+                let ionClass, ionText, left, top;
+                
+                const znSolutionRect = znSolution.getBoundingClientRect();
+                const cuSolutionRect = cuSolution.getBoundingClientRect();
+                const containerRect = batteryContainer.getBoundingClientRect();
+                
+                if (ionType === 0) { // Zn²⁺ 在锌溶液中
+                    ionClass = 'ion zn-plus';
+                    ionText = 'Zn²⁺';
+                    left = znSolutionRect.left - containerRect.left + Math.random() * znSolutionRect.width;
+                    top = znSolutionRect.top - containerRect.top + Math.random() * znSolutionRect.height;
+                } else if (ionType === 1) { // Cu²⁺ 在铜溶液中
+                    ionClass = 'ion cu-plus';
+                    ionText = 'Cu²⁺';
+                    left = cuSolutionRect.left - containerRect.left + Math.random() * cuSolutionRect.width;
+                    top = cuSolutionRect.top - containerRect.top + Math.random() * cuSolutionRect.height;
+                } else { // SO₄²⁻ 随机出现在两个溶液中
+                    ionClass = 'ion so4-minus';
+                    ionText = 'SO₄²⁻';
+                    if (Math.random() > 0.5) {
+                        left = znSolutionRect.left - containerRect.left + Math.random() * znSolutionRect.width;
+                        top = znSolutionRect.top - containerRect.top + Math.random() * znSolutionRect.height;
+                    } else {
+                        left = cuSolutionRect.left - containerRect.left + Math.random() * cuSolutionRect.width;
+                        top = cuSolutionRect.top - containerRect.top + Math.random() * cuSolutionRect.height;
+                    }
+                }
+                
+                const ion = document.createElement('div');
+                ion.className = ionClass;
+                ion.textContent = ionText;
+                ion.style.left = `${left}px`;
+                ion.style.top = `${top}px`;
+                ion.style.opacity = '0.6';
+                ion.style.animation = `float 3s infinite ease-in-out`;
+                
+                batteryContainer.appendChild(ion);
+            }
+            
+            // 速度控制事件
+            speedSlider.addEventListener('input', function() {
+                animationSpeed = parseInt(this.value);
+                updateSpeedDisplay();
+                
+                // 重新开始动画以应用新速度
+                restartAnimation();
+            });
+            
+            // 点击演示区域可以暂停/继续
+            batteryContainer.addEventListener('click', function() {
+                if (animationActive) {
+                    pauseAnimation();
+                } else {
+                    startAnimation();
+                }
+            });
+            
+            // 初始设置
+            updateSpeedDisplay();
+        });
+    </script>
+</body>
+</html>
