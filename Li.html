@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>锂电池结构与电流释放演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #0a0e17;
+            color: #e0f0ff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 80, 200, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(100, 255, 200, 0.1) 0%, transparent 20%);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00a8ff, #00ffcc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(0, 168, 255, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0d2ff;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .demo-area {
+            background-color: rgba(16, 24, 39, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 168, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .demo-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00a8ff, transparent);
+        }
+        
+        .demo-title {
+            font-size: 1.8rem;
+            color: #00ffcc;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 255, 204, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .demo-title i {
+            color: #00a8ff;
+        }
+        
+        .main-demo {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        /* 电池内部结构区域 */
+        .battery-structure {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+            height: 400px;
+            background-color: rgba(10, 20, 40, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 168, 255, 0.1);
+        }
+        
+        /* 电池结构层 */
+        .battery-layer {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease;
+            overflow: hidden;
+        }
+        
+        .layer-label {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            font-size: 0.9rem;
+            z-index: 2;
+            padding: 5px;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .positive-electrode {
+            left: 10%;
+            width: 80%;
+            height: 100px;
+            top: 10%;
+            background: linear-gradient(to bottom, #8d2a2a, #5d1a1a);
+            border: 2px solid #bf3b3b;
+        }
+        
+        .negative-electrode {
+            left: 10%;
+            width: 80%;
+            height: 100px;
+            bottom: 10%;
+            background: linear-gradient(to top, #333333, #1a1a1a);
+            border: 2px solid #666;
+        }
+        
+        .separator {
+            left: 10%;
+            width: 80%;
+            height: 60px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(to bottom, #2a8d7a, #1a5d4d);
+            border: 2px solid #3bbf9d;
+            z-index: 5;
+        }
+        
+        .electrolyte {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+        }
+        
+        /* 电流演示区域 */
+        .current-demo {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+            height: 400px;
+            background-color: rgba(10, 20, 40, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 168, 255, 0.1);
+        }
+        
+        /* 电路组件 */
+        .circuit-wire {
+            position: absolute;
+            background-color: #ffaa00;
+            box-shadow: 0 0 10px #ffaa00;
+            z-index: 5;
+        }
+        
+        .circuit-wire.horizontal {
+            height: 4px;
+        }
+        
+        .circuit-wire.vertical {
+            width: 4px;
+        }
+        
+        .circuit-component {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            z-index: 10;
+        }
+        
+        .battery-symbol {
+            width: 80px;
+            height: 120px;
+            background: linear-gradient(145deg, #1a2b4d, #0d1425);
+            border-radius: 10px;
+            border: 2px solid #2a4a7d;
+            flex-direction: column;
+        }
+        
+        .resistor {
+            width: 80px;
+            height: 40px;
+            background-color: #8B4513;
+            border-radius: 5px;
+            color: #ffd700;
+        }
+        
+        .led {
+            width: 50px;
+            height: 50px;
+            background-color: #333;
+            border-radius: 50%;
+            border: 2px solid #666;
+            color: #aaa;
+        }
+        
+        .led.lit {
+            background-color: #ff3333;
+            box-shadow: 0 0 20px #ff3333;
+            color: white;
+        }
+        
+        .switch {
+            width: 60px;
+            height: 60px;
+            background-color: #444;
+            border-radius: 10px;
+            border: 2px solid #666;
+            cursor: pointer;
+            color: #ddd;
+        }
+        
+        .switch.on {
+            background-color: #4CAF50;
+            border-color: #6bcf6f;
+        }
+        
+        /* 粒子样式 */
+        .electron {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #00ffcc;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ffcc;
+            z-index: 20;
+            pointer-events: none;
+        }
+        
+        .ion {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: bold;
+            z-index: 15;
+            pointer-events: none;
+        }
+        
+        .ion.lithium {
+            background-color: rgba(0, 200, 255, 0.8);
+            color: white;
+        }
+        
+        /* 电池内电子和离子 */
+        .internal-electron {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #ff4757;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #ff4757;
+            z-index: 10;
+            pointer-events: none;
+        }
+        
+        .internal-ion {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: rgba(0, 200, 255, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.5rem;
+            font-weight: bold;
+            color: white;
+            z-index: 6;
+            pointer-events: none;
+        }
+        
+        /* 控制面板 */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            background: linear-gradient(90deg, #00a8ff, #0088cc);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 15px rgba(0, 168, 255, 0.3);
+        }
+        
+        .btn:hover {
+            background: linear-gradient(90deg, #00c8ff, #00a8cc);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 200, 255, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn.discharge {
+            background: linear-gradient(90deg, #ff6b6b, #ff4757);
+        }
+        
+        .btn.discharge:hover {
+            background: linear-gradient(90deg, #ff8b8b, #ff6767);
+        }
+        
+        .btn.charge {
+            background: linear-gradient(90deg, #4CAF50, #2E7D32);
+        }
+        
+        .btn.charge:hover {
+            background: linear-gradient(90deg, #6bcf6f, #4CAF50);
+        }
+        
+        /* 速度控制 */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            background-color: rgba(20, 30, 50, 0.8);
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+        
+        .speed-slider {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(90deg, #0088cc, #00ffcc);
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #00a8ff;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00a8ff;
+        }
+        
+        .speed-value {
+            font-weight: bold;
+            color: #00ffcc;
+            min-width: 60px;
+        }
+        
+        /* 信息面板 */
+        .info-panel {
+            background-color: rgba(16, 24, 39, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 168, 255, 0.2);
+        }
+        
+        .info-title {
+            font-size: 1.5rem;
+            color: #00a8ff;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 168, 255, 0.3);
+        }
+        
+        .layer-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .layer-card {
+            flex: 1;
+            min-width: 200px;
+            background-color: rgba(30, 40, 60, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid #00ffcc;
+        }
+        
+        .layer-card h4 {
+            color: #00ffcc;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .layer-card p {
+            color: #a0d2ff;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* 状态指示器 */
+        .status-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: #00ffcc;
+            z-index: 100;
+        }
+        
+        /* 图例 */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(0, 168, 255, 0.2);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+        
+        .legend-color.electron {
+            background-color: #ff4757;
+        }
+        
+        .legend-color.lithium-ion {
+            background-color: rgba(0, 200, 255, 0.8);
+        }
+        
+        .legend-color.circuit-electron {
+            background-color: #00ffcc;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #6688aa;
+            font-size: 0.9rem;
+            margin-top: 30px;
+            border-top: 1px solid rgba(0, 168, 255, 0.1);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            .main-demo {
+                flex-direction: column;
+            }
+            
+            .battery-structure, .current-demo {
+                height: 350px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* 动画关键帧 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-5px) translateX(3px); }
+            50% { transform: translateY(-10px) translateX(-3px); }
+            75% { transform: translateY(-5px) translateX(3px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+
+        </header>
+        
+        <div class="demo-area">
+            <h2 class="demo-title"><i class="fas fa-bolt"></i> 锂电池结构与电流演示</h2>
+            
+            <div class="main-demo">
+                <!-- 电池内部结构 -->
+                <div class="battery-structure" id="batteryStructure">
+                    <div class="status-indicator" id="structureStatus">电池结构</div>
+                    
+                    <!-- 电池内部各层 -->
+                    <div class="battery-layer positive-electrode">
+                        <div class="layer-label">正极 (LiCoO₂/NMC)</div>
+                    </div>
+                    
+                    <div class="battery-layer separator">
+                        <div class="layer-label">聚合物隔膜</div>
+                    </div>
+                    
+                    <div class="battery-layer negative-electrode">
+                        <div class="layer-label">负极 (石墨)</div>
+                    </div>
+                    
+                    <!-- 电解质区域 -->
+                    <div class="electrolyte" id="electrolyteArea"></div>
+                </div>
+                
+                <!-- 电流演示区域 -->
+                <div class="current-demo" id="currentDemo">
+                    <div class="status-indicator" id="circuitStatus">电路关闭</div>
+                    
+                    <!-- 电路组件 -->
+                    <div class="circuit-component battery-symbol" style="top: 140px; left: 50px;">
+                        <span>Li-ion</span>
+                        <span style="font-size: 0.8rem;">3.7V</span>
+                    </div>
+                    
+                    <div class="circuit-component resistor" style="top: 100px; left: 200px;">
+                        电阻
+                    </div>
+                    
+                    <div class="circuit-component led" id="led" style="top: 180px; left: 200px;">
+                        LED
+                    </div>
+                    
+                    <div class="circuit-component switch" id="circuitSwitch" style="top: 140px; left: 350px;">
+                        开关
+                    </div>
+                    
+                    <!-- 电路导线 -->
+                    <div class="circuit-wire horizontal" style="top: 200px; left: 130px; width: 70px;"></div>
+                    <div class="circuit-wire horizontal" style="top: 200px; left: 250px; width: 100px;"></div>
+                    <div class="circuit-wire horizontal" style="top: 200px; left: 410px; width: 100px;"></div>
+                    <div class="circuit-wire horizontal" style="top: 100px; left: 130px; width: 70px;"></div>
+                    <div class="circuit-wire vertical" style="top: 100px; left: 200px; height: 100px;"></div>
+                    <div class="circuit-wire vertical" style="top: 100px; left: 280px; height: 100px;"></div>
+                    <div class="circuit-wire vertical" style="top: 200px; left: 350px; height: 80px;"></div>
+                    <div class="circuit-wire vertical" style="top: 200px; left: 510px; height: 80px;"></div>
+                    <div class="circuit-wire horizontal" style="top: 280px; left: 200px; width: 310px;"></div>
+                    <div class="circuit-wire vertical" style="top: 280px; left: 130px; height: 80px;"></div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn discharge" id="dischargeBtn">
+                    <i class="fas fa-play-circle"></i> 开始放电
+                </button>
+                <button class="btn charge" id="chargeBtn">
+                    <i class="fas fa-charging-station"></i> 开始充电
+                </button>
+                <button class="btn" id="resetBtn">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+            
+            <div class="speed-control">
+                <span>动画速度:</span>
+                <input type="range" min="1" max="10" value="5" class="speed-slider" id="speedSlider">
+                <span class="speed-value" id="speedValue">中速</span>
+            </div>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color electron"></div>
+                    <span>电池内电子 (e⁻)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color lithium-ion"></div>
+                    <span>锂离子 (Li⁺)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color circuit-electron"></div>
+                    <span>电路电子 (e⁻)</span>
+                </div>
+            </div>
+        </div>
+        
+
+            
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            const batteryStructure = document.getElementById('batteryStructure');
+            const electrolyteArea = document.getElementById('electrolyteArea');
+            const currentDemo = document.getElementById('currentDemo');
+            const dischargeBtn = document.getElementById('dischargeBtn');
+            const chargeBtn = document.getElementById('chargeBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const speedSlider = document.getElementById('speedSlider');
+            const speedValue = document.getElementById('speedValue');
+            const led = document.getElementById('led');
+            const circuitSwitch = document.getElementById('circuitSwitch');
+            const structureStatus = document.getElementById('structureStatus');
+            const circuitStatus = document.getElementById('circuitStatus');
+            
+            // 状态变量
+            let isActive = false;
+            let isCharging = false;
+            let animationSpeed = 5;
+            let electronInterval, ionInterval;
+            let internalElectrons = [];
+            let internalIons = [];
+            let circuitElectrons = [];
+            
+            // 速度映射
+            const speedMap = {
+                1: "极慢", 2: "很慢", 3: "较慢", 4: "稍慢", 
+                5: "中速", 6: "稍快", 7: "较快", 8: "很快", 
+                9: "极快", 10: "最快"
+            };
+            
+            // 更新速度显示
+            function updateSpeedDisplay() {
+                speedValue.textContent = speedMap[animationSpeed];
+            }
+            
+            // 开始放电演示
+            function startDischarge() {
+                if (isActive) return;
+                
+                isActive = true;
+                isCharging = false;
+                circuitSwitch.classList.add('on');
+                led.classList.add('lit');
+                dischargeBtn.disabled = true;
+                chargeBtn.disabled = false;
+                structureStatus.textContent = "放电中";
+                structureStatus.style.color = "#ff6b6b";
+                circuitStatus.textContent = "放电中 - LED亮起";
+                circuitStatus.style.color = "#ff6b6b";
+                
+                // 创建电池内部电子流动（从负极到正极）
+                createInternalElectronsDischarge();
+                
+                // 创建电池内部锂离子流动（从负极到正极）
+                createInternalIonsDischarge();
+                
+                // 创建电路电子流动
+                createCircuitElectrons();
+                
+                // 更新动画速度
+                updateAnimationSpeed();
+            }
+            
+            // 开始充电演示
+            function startCharge() {
+                if (isActive) return;
+                
+                isActive = true;
+                isCharging = true;
+                circuitSwitch.classList.add('on');
+                led.classList.remove('lit');
+                chargeBtn.disabled = true;
+                dischargeBtn.disabled = false;
+                structureStatus.textContent = "充电中";
+                structureStatus.style.color = "#4CAF50";
+                circuitStatus.textContent = "充电中 - LED熄灭";
+                circuitStatus.style.color = "#4CAF50";
+                
+                // 创建电池内部电子流动（从正极到负极）
+                createInternalElectronsCharge();
+                
+                // 创建电池内部锂离子流动（从正极到负极）
+                createInternalIonsCharge();
+                
+                // 创建电路电子流动（反向）
+                createCircuitElectronsReverse();
+                
+                // 更新动画速度
+                updateAnimationSpeed();
+            }
+            
+            // 重置演示
+            function resetDemo() {
+                isActive = false;
+                isCharging = false;
+                circuitSwitch.classList.remove('on');
+                led.classList.remove('lit');
+                dischargeBtn.disabled = false;
+                chargeBtn.disabled = false;
+                structureStatus.textContent = "电池结构";
+                structureStatus.style.color = "#00ffcc";
+                circuitStatus.textContent = "电路关闭";
+                circuitStatus.style.color = "#00ffcc";
+                
+                // 停止所有动画
+                clearInterval(electronInterval);
+                clearInterval(ionInterval);
+                
+                // 移除所有粒子
+                document.querySelectorAll('.internal-electron, .internal-ion, .electron').forEach(el => el.remove());
+                internalElectrons = [];
+                internalIons = [];
+                circuitElectrons = [];
+            }
+            
+            // 创建电池内部电子（放电方向：从负极到正极）
+            function createInternalElectronsDischarge() {
+                electronInterval = setInterval(() => {
+                    if (!isActive || isCharging) return;
+                    
+                    // 创建电子元素
+                    const electron = document.createElement('div');
+                    electron.className = 'internal-electron';
+                    
+                    // 设置电子起始位置（负极随机位置）
+                    const negativeRect = document.querySelector('.negative-electrode').getBoundingClientRect();
+                    const structureRect = batteryStructure.getBoundingClientRect();
+                    
+                    const startX = negativeRect.left - structureRect.left + Math.random() * negativeRect.width;
+                    const startY = negativeRect.top - structureRect.top + Math.random() * negativeRect.height;
+                    
+                    electron.style.left = `${startX}px`;
+                    electron.style.top = `${startY}px`;
+                    
+                    batteryStructure.appendChild(electron);
+                    internalElectrons.push(electron);
+                    
+                    // 目标位置（正极随机位置）
+                    const positiveRect = document.querySelector('.positive-electrode').getBoundingClientRect();
+                    const endX = positiveRect.left - structureRect.left + Math.random() * positiveRect.width;
+                    const endY = positiveRect.top - structureRect.top + Math.random() * positiveRect.height;
+                    
+                    // 动画时间
+                    const animationDuration = 3000 / animationSpeed;
+                    
+                    // 应用动画
+                    electron.animate(
+                        [
+                            { left: `${startX}px`, top: `${startY}px`, opacity: 1 },
+                            { left: `${endX}px`, top: `${endY}px`, opacity: 0 }
+                        ],
+                        {
+                            duration: animationDuration,
+                            easing: 'linear',
+                            fill: 'forwards'
+                        }
+                    );
+                    
+                    // 动画结束后移除电子
+                    setTimeout(() => {
+                        if (electron.parentNode) {
+                            const index = internalElectrons.indexOf(electron);
+                            if (index > -1) internalElectrons.splice(index, 1);
+                            electron.remove();
+                        }
+                    }, animationDuration);
+                }, 800 / animationSpeed);
+            }
+            
+            // 创建电池内部锂离子（放电方向：从负极到正极）
+            function createInternalIonsDischarge() {
+                ionInterval = setInterval(() => {
+                    if (!isActive || isCharging) return;
+                    
+                    // 创建锂离子元素
+                    const ion = document.createElement('div');
+                    ion.className = 'internal-ion lithium';
+                    ion.textContent = 'Li⁺';
+                    
+                    // 设置离子起始位置（负极随机位置）
+                    const negativeRect = document.querySelector('.negative-electrode').getBoundingClientRect();
+                    const structureRect = batteryStructure.getBoundingClientRect();
+                    
+                    const startX = negativeRect.left - structureRect.left + Math.random() * negativeRect.width;
+                    const startY = negativeRect.top - structureRect.top + negativeRect.height;
+                    
+                    ion.style.left = `${startX}px`;
+                    ion.style.top = `${startY}px`;
+                    
+                    batteryStructure.appendChild(ion);
+                    internalIons.push(ion);
+                    
+                    // 目标位置（正极随机位置）
+                    const positiveRect = document.querySelector('.positive-electrode').getBoundingClientRect();
+                    const separatorRect = document.querySelector('.separator').getBoundingClientRect();
+                    
+                    // 离子穿过隔膜到达正极
+                    const endX = positiveRect.left - structureRect.left + Math.random() * positiveRect.width;
+                    const endY = positiveRect.top - structureRect.top + positiveRect.height;
+                    
+                    // 路径关键点
+                    const path = [
+                        {x: startX, y: startY},
+                        {x: startX, y: separatorRect.top - structureRect.top + separatorRect.height/2},
+                        {x: endX, y: separatorRect.top - structureRect.top + separatorRect.height/2},
+                        {x: endX, y: endY}
+                    ];
+                    
+                    // 动画时间
+                    const animationDuration = 4000 / animationSpeed;
+                    
+                    // 应用路径动画
+                    animateAlongPath(ion, path, animationDuration);
+                    
+                    // 动画结束后移除离子
+                    setTimeout(() => {
+                        if (ion.parentNode) {
+                            const index = internalIons.indexOf(ion);
+                            if (index > -1) internalIons.splice(index, 1);
+                            ion.remove();
+                        }
+                    }, animationDuration);
+                }, 1200 / animationSpeed);
+            }
+            
+            // 创建电池内部电子（充电方向：从正极到负极）
+            function createInternalElectronsCharge() {
+                electronInterval = setInterval(() => {
+                    if (!isActive || !isCharging) return;
+                    
+                    // 创建电子元素
+                    const electron = document.createElement('div');
+                    electron.className = 'internal-electron';
+                    
+                    // 设置电子起始位置（正极随机位置）
+                    const positiveRect = document.querySelector('.positive-electrode').getBoundingClientRect();
+                    const structureRect = batteryStructure.getBoundingClientRect();
+                    
+                    const startX = positiveRect.left - structureRect.left + Math.random() * positiveRect.width;
+                    const startY = positiveRect.top - structureRect.top + Math.random() * positiveRect.height;
+                    
+                    electron.style.left = `${startX}px`;
+                    electron.style.top = `${startY}px`;
+                    
+                    batteryStructure.appendChild(electron);
+                    internalElectrons.push(electron);
+                    
+                    // 目标位置（负极随机位置）
+                    const negativeRect = document.querySelector('.negative-electrode').getBoundingClientRect();
+                    const endX = negativeRect.left - structureRect.left + Math.random() * negativeRect.width;
+                    const endY = negativeRect.top - structureRect.top + Math.random() * negativeRect.height;
+                    
+                    // 动画时间
+                    const animationDuration = 3000 / animationSpeed;
+                    
+                    // 应用动画
+                    electron.animate(
+                        [
+                            { left: `${startX}px`, top: `${startY}px`, opacity: 1 },
+                            { left: `${endX}px`, top: `${endY}px`, opacity: 0 }
+                        ],
+                        {
+                            duration: animationDuration,
+                            easing: 'linear',
+                            fill: 'forwards'
+                        }
+                    );
+                    
+                    // 动画结束后移除电子
+                    setTimeout(() => {
+                        if (electron.parentNode) {
+                            const index = internalElectrons.indexOf(electron);
+                            if (index > -1) internalElectrons.splice(index, 1);
+                            electron.remove();
+                        }
+                    }, animationDuration);
+                }, 800 / animationSpeed);
+            }
+            
+            // 创建电池内部锂离子（充电方向：从正极到负极）
+            function createInternalIonsCharge() {
+                ionInterval = setInterval(() => {
+                    if (!isActive || !isCharging) return;
+                    
+                    // 创建锂离子元素
+                    const ion = document.createElement('div');
+                    ion.className = 'internal-ion lithium';
+                    ion.textContent = 'Li⁺';
+                    
+                    // 设置离子起始位置（正极随机位置）
+                    const positiveRect = document.querySelector('.positive-electrode').getBoundingClientRect();
+                    const structureRect = batteryStructure.getBoundingClientRect();
+                    
+                    const startX = positiveRect.left - structureRect.left + Math.random() * positiveRect.width;
+                    const startY = positiveRect.top - structureRect.top;
+                    
+                    ion.style.left = `${startX}px`;
+                    ion.style.top = `${startY}px`;
+                    
+                    batteryStructure.appendChild(ion);
+                    internalIons.push(ion);
+                    
+                    // 目标位置（负极随机位置）
+                    const negativeRect = document.querySelector('.negative-electrode').getBoundingClientRect();
+                    const separatorRect = document.querySelector('.separator').getBoundingClientRect();
+                    
+                    // 离子穿过隔膜到达负极
+                    const endX = negativeRect.left - structureRect.left + Math.random() * negativeRect.width;
+                    const endY = negativeRect.top - structureRect.top;
+                    
+                    // 路径关键点
+                    const path = [
+                        {x: startX, y: startY},
+                        {x: startX, y: separatorRect.top - structureRect.top + separatorRect.height/2},
+                        {x: endX, y: separatorRect.top - structureRect.top + separatorRect.height/2},
+                        {x: endX, y: endY}
+                    ];
+                    
+                    // 动画时间
+                    const animationDuration = 4000 / animationSpeed;
+                    
+                    // 应用路径动画
+                    animateAlongPath(ion, path, animationDuration);
+                    
+                    // 动画结束后移除离子
+                    setTimeout(() => {
+                        if (ion.parentNode) {
+                            const index = internalIons.indexOf(ion);
+                            if (index > -1) internalIons.splice(index, 1);
+                            ion.remove();
+                        }
+                    }, animationDuration);
+                }, 1200 / animationSpeed);
+            }
+            
+            // 创建电路电子（放电方向）
+            function createCircuitElectrons() {
+                const circuitElectronInterval = setInterval(() => {
+                    if (!isActive || isCharging) {
+                        clearInterval(circuitElectronInterval);
+                        return;
+                    }
+                    
+                    // 创建电子元素
+                    const electron = document.createElement('div');
+                    electron.className = 'electron';
+                    
+                    // 设置电子起始位置（电池负极）
+                    const startX = 130;
+                    const startY = 200;
+                    
+                    electron.style.left = `${startX}px`;
+                    electron.style.top = `${startY}px`;
+                    
+                    currentDemo.appendChild(electron);
+                    circuitElectrons.push(electron);
+                    
+                    // 电子流动路径（顺时针）
+                    const path = [
+                        {x: 130, y: 200},  // 起点
+                        {x: 200, y: 200},  // 向右到电阻
+                        {x: 200, y: 100},  // 向上到电阻上端
+                        {x: 280, y: 100},  // 向右到LED上端
+                        {x: 280, y: 200},  // 向下到LED下端
+                        {x: 350, y: 200},  // 向右到开关
+                        {x: 350, y: 280},  // 向下到开关下端
+                        {x: 200, y: 280},  // 向左到电池负极
+                        {x: 200, y: 200},  // 向上到起点
+                    ];
+                    
+                    // 计算动画时间
+                    const animationDuration = 5000 / animationSpeed;
+                    
+                    // 应用路径动画
+                    animateAlongPath(electron, path, animationDuration);
+                    
+                    // 动画结束后移除电子
+                    setTimeout(() => {
+                        if (electron.parentNode) {
+                            const index = circuitElectrons.indexOf(electron);
+                            if (index > -1) circuitElectrons.splice(index, 1);
+                            electron.remove();
+                        }
+                    }, animationDuration);
+                }, 600 / animationSpeed);
+            }
+            
+            // 创建电路电子（充电方向，反向）
+            function createCircuitElectronsReverse() {
+                const circuitElectronInterval = setInterval(() => {
+                    if (!isActive || !isCharging) {
+                        clearInterval(circuitElectronInterval);
+                        return;
+                    }
+                    
+                    // 创建电子元素
+                    const electron = document.createElement('div');
+                    electron.className = 'electron';
+                    
+                    // 设置电子起始位置（电池正极）
+                    const startX = 130;
+                    const startY = 100;
+                    
+                    electron.style.left = `${startX}px`;
+                    electron.style.top = `${startY}px`;
+                    
+                    currentDemo.appendChild(electron);
+                    circuitElectrons.push(electron);
+                    
+                    // 电子流动路径（逆时针）
+                    const path = [
+                        {x: 130, y: 100},  // 起点
+                        {x: 200, y: 100},  // 向右到电阻上端
+                        {x: 200, y: 200},  // 向下到电阻下端
+                        {x: 280, y: 200},  // 向右到LED下端
+                        {x: 280, y: 100},  // 向上到LED上端
+                        {x: 350, y: 100},  // 向右到开关上端
+                        {x: 350, y: 200},  // 向下到开关
+                        {x: 200, y: 200},  // 向左到电池正极
+                        {x: 200, y: 100},  // 向上到起点
+                    ];
+                    
+                    // 计算动画时间
+                    const animationDuration = 5000 / animationSpeed;
+                    
+                    // 应用路径动画
+                    animateAlongPath(electron, path, animationDuration);
+                    
+                    // 动画结束后移除电子
+                    setTimeout(() => {
+                        if (electron.parentNode) {
+                            const index = circuitElectrons.indexOf(electron);
+                            if (index > -1) circuitElectrons.splice(index, 1);
+                            electron.remove();
+                        }
+                    }, animationDuration);
+                }, 600 / animationSpeed);
+            }
+            
+            // 沿路径动画
+            function animateAlongPath(element, path, duration) {
+                if (path.length < 2) return;
+                
+                const keyframes = [];
+                
+                for (let i = 0; i < path.length; i++) {
+                    keyframes.push({
+                        left: `${path[i].x}px`,
+                        top: `${path[i].y}px`,
+                        offset: i / (path.length - 1)
+                    });
+                }
+                
+                element.animate(keyframes, {
+                    duration: duration,
+                    easing: 'linear',
+                    fill: 'forwards'
+                });
+            }
+            
+            // 更新动画速度
+            function updateAnimationSpeed() {
+                if (!isActive) return;
+                
+                // 停止当前动画
+                clearInterval(electronInterval);
+                clearInterval(ionInterval);
+                
+                // 重新开始动画以应用新速度
+                if (isCharging) {
+                    startCharge();
+                } else {
+                    startDischarge();
+                }
+            }
+            
+            // 初始化静态离子
+            function initStaticIons() {
+                // 在电池内部添加一些静态锂离子
+                for (let i = 0; i < 15; i++) {
+                    setTimeout(() => {
+                        const ion = document.createElement('div');
+                        ion.className = 'internal-ion lithium';
+                        ion.textContent = 'Li⁺';
+                        
+                        // 随机分布在正极或负极
+                        const positiveRect = document.querySelector('.positive-electrode').getBoundingClientRect();
+                        const negativeRect = document.querySelector('.negative-electrode').getBoundingClientRect();
+                        const structureRect = batteryStructure.getBoundingClientRect();
+                        
+                        let x, y;
+                        if (Math.random() > 0.5) {
+                            // 正极
+                            x = positiveRect.left - structureRect.left + Math.random() * positiveRect.width;
+                            y = positiveRect.top - structureRect.top + Math.random() * positiveRect.height;
+                        } else {
+                            // 负极
+                            x = negativeRect.left - structureRect.left + Math.random() * negativeRect.width;
+                            y = negativeRect.top - structureRect.top + Math.random() * negativeRect.height;
+                        }
+                        
+                        ion.style.left = `${x}px`;
+                        ion.style.top = `${y}px`;
+                        ion.style.opacity = '0.6';
+                        ion.style.animation = `float 4s infinite ease-in-out ${i * 0.3}s`;
+                        
+                        batteryStructure.appendChild(ion);
+                        internalIons.push(ion);
+                    }, i * 100);
+                }
+            }
+            
+            // 事件监听器
+            dischargeBtn.addEventListener('click', startDischarge);
+            chargeBtn.addEventListener('click', startCharge);
+            resetBtn.addEventListener('click', resetDemo);
+            
+            // 开关点击事件
+            circuitSwitch.addEventListener('click', function() {
+                if (!isActive) {
+                    startDischarge();
+                } else {
+                    resetDemo();
+                }
+            });
+            
+            speedSlider.addEventListener('input', function() {
+                animationSpeed = parseInt(this.value);
+                updateSpeedDisplay();
+                updateAnimationSpeed();
+            });
+            
+            // 初始化
+            function init() {
+                updateSpeedDisplay();
+                initStaticIons();
+            }
+            
+            // 初始化
+            init();
+        });
+    </script>
+</body>
+</html>
