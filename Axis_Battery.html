@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电池发展历程时间轴</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #1a1a2e; /* 深色背景 */
+            font-family: "微软雅黑", sans-serif;
+        }
+        .timeline-container {
+            width: 100%;
+            overflow-x: auto; /* 横向滚动 */
+            padding: 60px 0;
+        }
+        .timeline-track {
+            display: flex;
+            align-items: center;
+            height: 120px;
+            gap: 8px; /* 箭头间距 */
+            padding: 0 20px;
+        }
+        /* 箭头基础样式 */
+        .timeline-item {
+            position: relative;
+            width: 50px;
+            height: 30px;
+            background: #8a8aff; /* 浅色：普通事件 */
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* 箭头三角部分 */
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            right: -15px;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            border-left: 15px solid #8a8aff;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        /* 重要事件样式（深色+加长） */
+        .timeline-item.important {
+            width: 70px;
+            background: #5a5aff; /* 深色：重要事件 */
+        }
+        .timeline-item.important::after {
+            border-left-color: #5a5aff;
+        }
+        /* Hover放大效果 */
+        .timeline-item:hover {
+            transform: scale(1.2);
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(138, 138, 255, 0.3);
+        }
+        .timeline-item:hover::after {
+            right: -18px; /* 放大后调整三角位置 */
+        }
+        /* 事件文字（默认隐藏） */
+        .event-text {
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .timeline-item:hover .event-text {
+            opacity: 1;
+        }
+        .event-text .year {
+            font-weight: bold;
+            color: #8a8aff;
+            margin-right: 6px;
+        }
+        /* 最后一个箭头去掉三角 */
+        .timeline-item:last-child::after {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="timeline-container">
+        <div class="timeline-track">
+            <!-- 1. 1800 伏打电堆（重要） -->
+            <div class="timeline-item important">
+                <div class="event-text"><span class="year">1800</span>：亚历山德罗·伏打发明伏打电堆</div>
+            </div>
+            <!-- 2. 1801 二次电流实验 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1801</span>：戈特洛发现电解盐水的二次电流</div>
+            </div>
+            <!-- 3. 1802 充电实验 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1802</span>：里特实现铜片/铅片的充电储能</div>
+            </div>
+            <!-- 4. 1836 丹尼尔电池 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1836</span>：约翰·丹尼尔发明实用铜锌电池</div>
+            </div>
+            <!-- 5. 1842 燃料电池原型 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1842</span>：威廉·格罗夫发明燃料电池原型</div>
+            </div>
+            <!-- 6. 1854 铅电极储能发现 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1854</span>：辛斯特登发现铅电极的储能特性</div>
+            </div>
+            <!-- 7. 1859 铅酸电池（重要） -->
+            <div class="timeline-item important">
+                <div class="event-text"><span class="year">1859</span>：加斯东·普拉纳发明铅酸蓄电池</div>
+            </div>
+            <!-- 8. 1866 勒克朗谢电池 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1866</span>：乔治·勒克朗谢发明干电池原型</div>
+            </div>
+            <!-- 9. 1870 铅酸电池用于调峰 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1870</span>：铅酸电池首次用于发电厂负载调峰</div>
+            </div>
+            <!-- 10. 1879 铅酸电池需求爆发 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1879</span>：爱迪生白炽灯推动铅酸电池民用</div>
+            </div>
+            <!-- 11. 1881 涂膏式极板改进 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1881</span>：富莱发明铅酸电池涂膏式极板</div>
+            </div>
+            <!-- 12. 1882 Pb-Sb板栅发明 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1882</span>：赛隆发明铅锑合金板栅提升寿命</div>
+            </div>
+            <!-- 13. 1890 干电池便携应用 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1890</span>：干电池实现便携式设备供电</div>
+            </div>
+            <!-- 14. 1899 镍镉电池（重要） -->
+            <div class="timeline-item important">
+                <div class="event-text"><span class="year">1899</span>：Waldemar Jungner发明镍镉电池</div>
+            </div>
+            <!-- 15. 1901 镍铁电池 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1901</span>：爱迪生发明镍铁蓄电池</div>
+            </div>
+            <!-- 16. 1905 纽扣电池原型 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1905</span>：小型纽扣电池原型开发成功</div>
+            </div>
+            <!-- 17. 1910 干电池大规模生产 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1910</span>：锌碳干电池进入大规模商业化</div>
+            </div>
+            <!-- 18. 1920 镍镉电池便携应用 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1920</span>：镍镉电池用于便携式电子设备</div>
+            </div>
+            <!-- 19. 1930 军用电池技术突破 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1930</span>：军用便携式电池技术取得突破</div>
+            </div>
+            <!-- 20. 1940 锌碳干电池主流 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1940</span>：锌碳干电池成为民用主流电池</div>
+            </div>
+            <!-- 21. 1949 碱性干电池（重要） -->
+            <div class="timeline-item important">
+                <div class="event-text"><span class="year">1949</span>：Lew Urry发明碱性干电池</div>
+            </div>
+            <!-- 22. 1954 锂电材料基础 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1954</span>：古迪纳夫奠定锂离子电池材料基础</div>
+            </div>
+            <!-- 23. 1955 纽扣电池商用 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1955</span>：纽扣电池商业化应用于手表</div>
+            </div>
+            <!-- 24. 1957 胶体铅酸电池（重要） -->
+            <div class="timeline-item important">
+                <div class="event-text"><span class="year">1957</span>：阳光公司发明胶体密封铅酸电池</div>
+            </div>
+            <!-- 25. 1960 镍氢电池原型 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1960</span>：镍氢电池实验室原型开发</div>
+            </div>
+            <!-- 26. 1965 锂电池早期原型 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1965</span>：M.S.Whittingham开发锂电池原型</div>
+            </div>
+            <!-- 27. 1970 锂电池概念（重要） -->
+            <div class="timeline-item important">
+                <div class="event-text"><span class="year">1970</span>：锂电池概念正式提出</div>
+            </div>
+            <!-- 28. 1971 AGM铅酸电池（重要） -->
+            <div class="timeline-item important">
+                <div class="event-text"><span class="year">1971</span>：盖茨公司发明AGM密封铅酸电池</div>
+            </div>
+            <!-- 29. 1972 锂硫电池原型 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1972</span>：锂硫电池实验室原型开发</div>
+            </div>
+            <!-- 30. 1976 钠离子电池研究 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1976</span>：古迪纳夫提出钠离子电池电解质</div>
+            </div>
+            <!-- 31. 1977 锂电池专利 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1977</span>：惠廷厄姆获得锂电池核心专利</div>
+            </div>
+            <!-- 32. 1980 钴酸锂正极（重要） -->
+            <div class="timeline-item important">
+                <div class="event-text"><span class="year">1980</span>：古迪纳夫发现钴酸锂正极材料</div>
+            </div>
+            <!-- 33. 1982 石墨负极开发 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1982</span>：锂离子电池石墨负极材料开发</div>
+            </div>
+            <!-- 34. 1983 锂电原型 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1983</span>：吉野彰开发商用锂离子电池原型</div>
+            </div>
+            <!-- 35. 1985 锂电专利 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1985</span>：锂离子电池核心专利申请</div>
+            </div>
+            <!-- 36. 1987 锂电包装优化 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1987</span>：锂离子电池包装技术优化</div>
+            </div>
+            <!-- 37. 1990 充电电路改进 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1990</span>：锂离子电池充电控制电路改进</div>
+            </div>
+            <!-- 38. 1991 锂电商业化（重要） -->
+            <div class="timeline-item important">
+                <div class="event-text"><span class="year">1991</span>：索尼商业化锂离子电池</div>
+            </div>
+            <!-- 39. 1992 锂电安全性提升 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1992</span>：锂离子电池安全性提升技术落地</div>
+            </div>
+            <!-- 40. 1993 笔记本锂电原型 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1993</span>：笔记本电脑用锂离子电池原型</div>
+            </div>
+            <!-- 41. 1994 镍氢电池商用 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1994</span>：镍氢电池大规模商业化应用</div>
+            </div>
+            <!-- 42. 1995 锂电成本下降 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1995</span>：锂离子电池生产成本下降30%</div>
+            </div>
+            <!-- 43. 1997 磷酸铁锂提出 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1997</span>：古迪纳夫团队提出磷酸铁锂正极</div>
+            </div>
+            <!-- 44. 1998 手机锂电量产 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1998</span>：手机用小型锂离子电池量产</div>
+            </div>
+            <!-- 45. 1999 三元材料开发 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">1999</span>：三元材料（NCM）正极开发</div>
+            </div>
+            <!-- 46. 2000 锂电手机普及（重要） -->
+            <div class="timeline-item important">
+                <div class="event-text"><span class="year">2000</span>：锂离子电池在手机领域全面普及</div>
+            </div>
+            <!-- 47. 2000 钠离子电池突破 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">2000</span>：硬碳负极推动钠离子电池发展</div>
+            </div>
+            <!-- 48. 2001 聚合物锂电商用 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">2001</span>：聚合物锂离子电池商业化</div>
+            </div>
+            <!-- 49. 2003 BMS标准化 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">2003</span>：电池管理系统（BMS）技术标准化</div>
+            </div>
+            <!-- 50. 2004 磷酸铁锂动力电池 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">2004</span>：首款磷酸铁锂动力电池问世</div>
+            </div>
+            <!-- 51. 2007 纳扎尔聚阴离子正极 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">2007</span>：纳扎尔发现钠离子电池聚阴离子正极</div>
+            </div>
+            <!-- 52. 2008 比亚迪磷酸铁锂电池 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">2008</span>：比亚迪推出磷酸铁锂电动车电池</div>
+            </div>
+            <!-- 53. 2011 Faradion成立 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">2011</span>：全球首家钠离子电池公司Faradion成立</div>
+            </div>
+            <!-- 54. 2012 固态电池原型 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">2012</span>：固态电池实验室原型开发</div>
+            </div>
+            <!-- 55. 2015 钠离子电池研发加速（重要） -->
+            <div class="timeline-item important">
+                <div class="event-text"><span class="year">2015</span>：钠离子电池研发加速</div>
+            </div>
+            <!-- 56. 2017 中科海钠成立 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">2017</span>：北京中科海钠专注钠离子电池研发</div>
+            </div>
+            <!-- 57. 2019 比亚迪刀片电池（重要） -->
+            <div class="timeline-item important">
+                <div class="event-text"><span class="year">2019</span>：比亚迪推出磷酸铁锂刀片电池</div>
+            </div>
+            <!-- 58. 2021 钠离子电池试点 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">2021</span>：钠离子电池首次商业化试点</div>
+            </div>
+            <!-- 59. 2022 锂电300Wh/kg -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">2022</span>：锂离子电池能量密度达300Wh/kg</div>
+            </div>
+            <!-- 60. 2023 神行超充电池（重要） -->
+            <div class="timeline-item important">
+                <div class="event-text"><span class="year">2023</span>：宁德时代发布神行4C超充电池</div>
+            </div>
+            <!-- 61. 2023 固态电池原型车 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">2023</span>：固态电池原型车道路测试</div>
+            </div>
+            <!-- 62. 2024 钠离子储能项目 -->
+            <div class="timeline-item">
+                <div class="event-text"><span class="year">2024</span>：钠离子电池储能项目落地</div>
+            </div>
+            <!-- 63. 2025 固态电池量产计划（重要） -->
+            <div class="timeline-item important">
+                <div class="event-text"><span class="year">2025</span>：固态电池商业化量产计划启动</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
